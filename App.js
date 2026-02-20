@@ -5,7 +5,7 @@ import abc from './assets/forms/ImageHandling'
 import ImageHandling from "./assets/forms/ImageHandling";
 const App = () => {
     return (
-        <EmpChkList />
+        <ImageHandling />
     );
 }
 export default App;
@@ -14,6 +14,10 @@ export default App;
 git add .
 git commit -m "your message"
 git push
+*/
+/*
+git config --global user.name "rmnauman"
+git config --global user.email "rmnauman@gmail.com"
 */
 
 
