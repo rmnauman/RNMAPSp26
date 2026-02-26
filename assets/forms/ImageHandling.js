@@ -48,6 +48,11 @@ export default function ImageHandling() {
 
             <Text style={styles.title}>Upload Logo</Text>
 
+            {/* <Image
+                source={require('../Images/cute.jpg')}
+                style={{ width: 200, height: 300, borderWidth: 2 }}
+            /> */}
+
             {/* Image Box */}
             <View style={styles.imageBox}>
                 {imageUri ? (

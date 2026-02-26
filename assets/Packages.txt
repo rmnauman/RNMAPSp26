@@ -1,0 +1,34 @@
+------------ Drop Down Element ---------------
+npm install react-native-element-dropdown
+
+------------ Stack and Bottom Navigation -------
+
+npm install @react-navigation/native
+npm install @react-navigation/stack
+npm install @react-navigation/bottom-tabs
+npm install react-native-screens react-native-safe-area-context react-native-gesture-handler react-native-reanimated
+
+
+------------- Radio Button & CheckBox ----------
+
+npm install react-native-paper
+npm install react-native-vector-icons
+
+NOTE: Add following line in android/app/buil.gradle file 
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
+
+------------- SQLite Database ------------------
+npm install react-native-sqlite-storage
+
+
+------------- Launch Camera or Gallery ----------
+npm install react-native-image-picker
+
+
+------------- Async Storage/ Shared Preferences ----------------------
+npm install @react-native-async-storage/async-storage
+
+
+-------------- Google Maps -------------------------
+npm install react-native-maps
