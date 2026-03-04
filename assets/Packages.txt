@@ -18,8 +18,8 @@ NOTE: Add following line in android/app/buil.gradle file
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
 
-------------- SQLite Database ------------------
-npm install react-native-sqlite-storage
+------------- Quick SQLite Database ------------------
+npm i react-native-quick-sqlite
 
 
 ------------- Launch Camera or Gallery ----------
