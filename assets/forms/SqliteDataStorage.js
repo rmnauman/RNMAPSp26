@@ -1,58 +1,111 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
     TextInput,
-    Button,
+    TouchableOpacity,
     FlatList,
-    StyleSheet,
-} from "react-native";
-import { open } from "react-native-quick-sqlite";
+    Alert,
+    StyleSheet
+} from 'react-native';
+import { open } from 'react-native-quick-sqlite';
 
-const db = open({ name: "employee.db" });
+const db = open({ name: 'company.db' });
 
 export default function EmployeeScreen() {
-    const [name, setName] = useState("");
-    const [salary, setSalary] = useState("");
-    const [employees, setEmployees] = useState([]);
 
-    // Create table on first load
+    const [employees, setEmployees] = useState([]);
+    const [name, setName] = useState('');
+    const [salary, setSalary] = useState('');
+    const [selectedId, setSelectedId] = useState(null);
+
     useEffect(() => {
         db.execute(`
-      CREATE TABLE IF NOT EXISTS Employee (
+      CREATE TABLE IF NOT EXISTS Employee(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
-        salary TEXT
+        salary REAL
       );
     `);
-
-        loadEmployees();
+        getEmployees();
     }, []);
 
+    const getEmployees = () => {
+        const result = db.execute('SELECT * FROM Employee');
+        setEmployees(result.rows._array);
+    };
+
     const insertEmployee = () => {
-        if (!name || !salary) return;
+        if (!name || !salary) {
+            Alert.alert('Fill all fields');
+            return;
+        }
 
         db.execute(
-            `INSERT INTO Employee (name, salary) VALUES (?, ?)`,
+            'INSERT INTO Employee (name, salary) VALUES (?, ?)',
             [name, salary]
         );
 
-        setName("");
-        setSalary("");
-        loadEmployees();
+        clearFields();
+        getEmployees();
     };
 
-    const loadEmployees = () => {
-        const result = db.execute(`SELECT * FROM Employee`);
-        setEmployees(result.rows._array); // quick-sqlite format
+    const updateEmployee = () => {
+        if (!selectedId) {
+            Alert.alert('Select employee first');
+            return;
+        }
+
+        db.execute(
+            'UPDATE Employee SET name=?, salary=? WHERE id=?',
+            [name, salary, selectedId]
+        );
+
+        clearFields();
+        getEmployees();
+    };
+
+    const deleteEmployee = () => {
+        if (!selectedId) {
+            Alert.alert('Select employee first');
+            return;
+        }
+
+        db.execute(
+            'DELETE FROM Employee WHERE id=?',
+            [selectedId]
+        );
+
+        clearFields();
+        getEmployees();
+    };
+
+    const showTotalSalary = () => {
+        const result = db.execute(
+            'SELECT SUM(salary) as total FROM Employee'
+        );
+        const total = result.rows._array[0].total || 0;
+        Alert.alert('Total Salary', total.toString());
+    };
+
+    const clearFields = () => {
+        setName('');
+        setSalary('');
+        setSelectedId(null);
+    };
+
+    const populateFields = (item) => {
+        setName(item.name);
+        setSalary(item.salary.toString());
+        setSelectedId(item.id);
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.heading}>Add Employee</Text>
+            <Text style={styles.heading}>Quick SQLite CRUD</Text>
 
             <TextInput
-                placeholder="Employee Name"
+                placeholder="Name"
                 value={name}
                 onChangeText={setName}
                 style={styles.input}
@@ -66,36 +119,73 @@ export default function EmployeeScreen() {
                 style={styles.input}
             />
 
-            <Button title="Save Employee" onPress={insertEmployee} />
+            <View style={styles.row}>
+                <TouchableOpacity style={styles.btn} onPress={insertEmployee}>
+                    <Text style={styles.btnText}>Insert</Text>
+                </TouchableOpacity>
 
-            <Text style={styles.heading}>All Employees</Text>
+                <TouchableOpacity style={styles.btn} onPress={updateEmployee}>
+                    <Text style={styles.btnText}>Update</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.btn} onPress={deleteEmployee}>
+                    <Text style={styles.btnText}>Delete</Text>
+                </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity style={styles.totalBtn} onPress={showTotalSalary}>
+                <Text style={styles.btnText}>Show Total Salary</Text>
+            </TouchableOpacity>
 
             <FlatList
                 data={employees}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
-                    <Text style={styles.item}>
-                        {item.name} - Rs {item.salary}
-                    </Text>
+                    <TouchableOpacity
+                        style={styles.item}
+                        onPress={() => populateFields(item)}
+                    >
+                        <Text>ID: {item.id}</Text>
+                        <Text>Name: {item.name}</Text>
+                        <Text>Salary: {item.salary}</Text>
+                    </TouchableOpacity>
                 )}
             />
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: { flex: 1, padding: 20 },
-    heading: { fontSize: 18, fontWeight: "bold", marginVertical: 10 },
+    heading: { fontSize: 22, fontWeight: 'bold', marginBottom: 15 },
     input: {
         borderWidth: 1,
-        borderColor: "#ccc",
         padding: 10,
         marginBottom: 10,
-        borderRadius: 6,
+        borderRadius: 5
     },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 10
+    },
+    btn: {
+        backgroundColor: '#3498db',
+        padding: 10,
+        borderRadius: 5
+    },
+    totalBtn: {
+        backgroundColor: '#2ecc71',
+        padding: 10,
+        borderRadius: 5,
+        marginBottom: 10
+    },
+    btnText: { color: 'white', fontWeight: 'bold' },
     item: {
-        padding: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: "#eee",
-    },
+        padding: 10,
+        borderWidth: 1,
+        borderRadius: 5,
+        marginBottom: 8
+    }
 });
+
